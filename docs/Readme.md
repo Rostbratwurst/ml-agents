@@ -22,7 +22,6 @@
 
 ### Advanced Usage
   * [Using the Monitor](Feature-Monitor.md)
-  * [Using the Video Recorder](https://github.com/Unity-Technologies/video-recorder)
   * [Using an Executable Environment](Learning-Environment-Executable.md)
   * [Creating Custom Side Channels](Custom-SideChannels.md)
 
@@ -74,6 +73,7 @@ we welcome any enhancements and improvements from the community.
 We no longer use them ourselves and so they may not be up-to-date.
 We've decided to keep them up just in case they are helpful to you.
 
+* [Using the Video Recorder](https://github.com/Unity-Technologies/video-recorder)
 * [Training on the Cloud with Amazon Web Services](Training-on-Amazon-Web-Service.md)
 * [Training on the Cloud with Microsoft Azure](Training-on-Microsoft-Azure.md)
 * [Using Docker](Using-Docker.md)

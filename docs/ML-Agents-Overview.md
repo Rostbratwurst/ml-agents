@@ -27,7 +27,8 @@ machine learning concepts or have not previously heard of TensorFlow.
 The remainder of this page contains a deep dive into ML-Agents, its key
 components, different training modes and scenarios. By the end of it, you should
 have a good sense of _what_ the ML-Agents toolkit allows you to do. The
-subsequent documentation pages provide examples of _how_ to use ML-Agents.
+subsequent documentation pages provide examples of _how_ to use ML-Agents. But
+first, watch this [demo video of ML-Agents in action](https://www.youtube.com/watch?v=fiQsmdwEGT8&feature=youtu.be).
 
 ## Running Example: Training NPC Behaviors
 
@@ -286,15 +287,13 @@ inspiration:
 
 - Single-Agent. A single agent, with its own reward
   signal. The traditional way of training an agent. An example is any
-  single-player game, such as Chicken. [Video
-  Link](https://www.youtube.com/watch?v=fiQsmdwEGT8&feature=youtu.be).
+  single-player game, such as Chicken.
 - Simultaneous Single-Agent. Multiple independent agents with independent reward
   signals with same `Behavior Parameters`. A parallelized version of the traditional
   training scenario, which can speed-up and stabilize the training process.
   Helpful when you have multiple versions of the same character in an
   environment who should learn similar behaviors. An example might be training a
-  dozen robot-arms to each open a door simultaneously. [Video
-  Link](https://www.youtube.com/watch?v=fq0JBaiCYNA).
+  dozen robot-arms to each open a door simultaneously.
 - Adversarial Self-Play. Two interacting agents with inverse reward signals.
   In two-player games, adversarial self-play can allow
   an agent to become increasingly more skilled, while always having the

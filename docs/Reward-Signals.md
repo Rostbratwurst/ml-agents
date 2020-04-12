@@ -1,24 +1,5 @@
 # Reward Signals
 
-To train an agent, you will need to provide the agent one or more reward signals which
-the agent should attempt to maximize. This page highlights the available reward signals
-and the corresponding hyperparameters.
-
-In reinforcement learning, the end goal for the Agent is to discover a behavior (a Policy)
-that maximizes a reward. Typically, a reward is defined by your environment, and corresponds
-to reaching some goal. These are what we refer to as "extrinsic" rewards, as they are defined
-external of the learning algorithm.
-
-Rewards, however, can be defined outside of the environment as well, to encourage the agent to
-behave in certain ways, or to aid the learning of the true extrinsic reward. We refer to these
-rewards as "intrinsic" reward signals. The total reward that the agent will learn to maximize can
-be a mix of extrinsic and intrinsic reward signals.
-
-ML-Agents allows reward signals to be defined in a modular way, and we provide three reward
-signals that can the mixed and matched to help shape your agent's behavior. The `extrinsic` Reward
-Signal represents the rewards defined in your environment, and is enabled by default.
-The `curiosity` reward signal helps your agent explore when extrinsic rewards are sparse.
-
 ## Enabling Reward Signals
 
 Reward signals, like other hyperparameters, are defined in the trainer config `.yaml` file. An
@@ -75,21 +56,6 @@ Typical Range: `0.8` - `0.995`
 
 ### Curiosity Reward Signal
 
-The `curiosity` Reward Signal enables the Intrinsic Curiosity Module. This is an implementation
-of the approach described in "Curiosity-driven Exploration by Self-supervised Prediction"
-by Pathak, et al. It trains two networks:
-* an inverse model, which takes the current and next observation of the agent, encodes them, and
-uses the encoding to predict the action that was taken between the observations
-* a forward model, which takes the encoded current observation and action, and predicts the
-next encoded observation.
-
-The loss of the forward model (the difference between the predicted and actual encoded observations) is used as the intrinsic reward, so the more surprised the model is, the larger the reward will be.
-
-For more information, see
-* https://arxiv.org/abs/1705.05363
-* https://pathak22.github.io/noreward-rl/
-* https://blogs.unity3d.com/2018/06/26/solving-sparse-reward-tasks-with-curiosity/
-
 #### Strength
 
 In this case, `strength` corresponds to the magnitude of the curiosity reward generated
@@ -126,26 +92,6 @@ Default Value: `3e-4`
 Typical Range: `1e-5` - `1e-3`
 
 ### GAIL Reward Signal
-
-GAIL, or [Generative Adversarial Imitation Learning](https://arxiv.org/abs/1606.03476), is an
-imitation learning algorithm that uses an adversarial approach, in a similar vein to GANs
-(Generative Adversarial Networks). In this framework, a second neural network, the
-discriminator, is taught to distinguish whether an observation/action is from a demonstration or
-produced by the agent. This discriminator can the examine a new observation/action and provide it a
-reward based on how close it believes this new observation/action is to the provided demonstrations.
-
-At each training step, the agent tries to learn how to maximize this reward. Then, the
-discriminator is trained to better distinguish between demonstrations and agent state/actions.
-In this way, while the agent gets better and better at mimicing the demonstrations, the
-discriminator keeps getting stricter and stricter and the agent must try harder to "fool" it.
-
-This approach learns a _policy_ that produces states and actions similar to the demonstrations,
-requiring fewer demonstrations than direct cloning of the actions. In addition to learning purely
-from demonstrations, the GAIL reward signal can be mixed with an extrinsic reward signal to guide
-the learning process.
-
-Using GAIL requires recorded demonstrations from your Unity environment. See the
-[imitation learning guide](Training-Imitation-Learning.md) to learn more about recording demonstrations.
 
 #### Strength
 

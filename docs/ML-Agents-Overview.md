@@ -254,7 +254,7 @@ inspiration:
   interact, such as a savanna in which there might be zebras, elephants and
   giraffes, or an autonomous driving simulation within an urban environment.
 
-## Training Options
+## Training Methods
 
 ### Deep Reinforcement Learning
 
@@ -277,7 +277,114 @@ good choice for heavier or slower environments (about 0.1 seconds per step or mo
 SAC is also a "maximum entropy" algorithm, and enables exploration in an intrinsic way.
 Read more about maximum entropy RL [here](https://bair.berkeley.edu/blog/2017/10/06/soft-q-learning/).
 
-### Curriculum Learning
+### Imitation Learning
+
+It is often more intuitive to simply demonstrate the behavior we want an agent
+to perform, rather than attempting to have it learn via trial-and-error methods.
+For example, instead of indirectly training a medic with the help
+of a reward function, we can give the medic real world examples of observations
+from the game and actions from a game controller to guide the medic's behavior.
+Imitation Learning uses pairs of observations and actions from
+a demonstration to learn a policy. See this
+[video demo](https://youtu.be/kpb8ZkMBFYs) of imitation learning .
+
+Imitation learning can either be used alone or in conjunction with reinforcement learning.
+Especially in environments with sparse (i.e., infrequent or rare) rewards, the agent may never see
+the reward and thus not learn from it. Curiosity (which is available in the toolkit)
+helps the agent explore, but in some cases it is easier to show the agent how to
+achieve the reward. In these cases, imitation learning combined with reinforcement
+learning can dramatically reduce the time the agent takes to solve the environment.
+For instance, on the [Pyramids environment](Learning-Environment-Examples.md#pyramids),
+using 6 episodes of demonstrations can reduce training steps by more than 4 times.
+See Behavioral Cloning + GAIL + Curiosity + RL below.
+
+<p align="center">
+  <img src="images/mlagents-ImitationAndRL.png"
+       alt="Using Demonstrations with Reinforcement Learning"
+       width="700" border="0" />
+</p>
+
+The ML-Agents Toolkit provides a way to learn directly from demonstrations, as well as use them
+to help speed up reward-based training (RL). We include two algorithms called
+Behavioral Cloning (BC) and Generative Adversarial Imitation Learning (GAIL).
+In most scenarios, you can combine these two features.
+
+#### GAIL (Generative Adversarial Imitation Learning)
+
+GAIL, or [Generative Adversarial Imitation Learning](https://arxiv.org/abs/1606.03476), is an
+imitation learning algorithm that uses an adversarial approach, in a similar vein to GANs
+(Generative Adversarial Networks). In this framework, a second neural network, the
+discriminator, is taught to distinguish whether an observation/action is from a demonstration or
+produced by the agent. This discriminator can the examine a new observation/action and provide it a
+reward based on how close it believes this new observation/action is to the provided demonstrations.
+
+At each training step, the agent tries to learn how to maximize this reward. Then, the
+discriminator is trained to better distinguish between demonstrations and agent state/actions.
+In this way, while the agent gets better and better at mimicing the demonstrations, the
+discriminator keeps getting stricter and stricter and the agent must try harder to "fool" it.
+
+This approach learns a _policy_ that produces states and actions similar to the demonstrations,
+requiring fewer demonstrations than direct cloning of the actions. In addition to learning purely
+from demonstrations, the GAIL reward signal can be mixed with an extrinsic reward signal to guide
+the learning process.
+
+GAIL uses an adversarial approach to
+  reward your Agent for behaving similar to a set of demonstrations. GAIL can be
+  used with or without environment rewards, and works well when there are a limited
+  number of demonstrations.
+
+#### Behavioral Cloning (BC)
+
+BC trains the Agent's policy to exactly mimic the actions
+  shown in a set of demonstrations.
+  The BC feature can be enabled on the PPO or SAC trainers. As BC cannot generalize
+  past the examples shown in the demonstrations, BC tends to work best when there exists demonstrations
+  for nearly all of the states that the agent can experience, or in conjunction with GAIL and/or an extrinsic reward.
+
+#### Recording Demonstrations
+
+Demonstrations of agent behavior can be recorded from the Unity Editor,
+and saved as assets. These demonstrations contain information on the
+observations, actions, and rewards for a given agent during the recording session.
+They can be managed in the Editor, as well as used for training with BC and GAIL.
+
+### Training Multi-agent Environments with Self-Play
+
+ML-Agents provides the functionality to train both symmetric and asymmetric adversarial games with
+[Self-Play](https://openai.com/blog/competitive-self-play/).
+A symmetric game is one in which opposing agents are equal in form, function and objective. Examples of symmetric games
+are our Tennis and Soccer example environments. In reinforcement learning, this means both agents have the same observation and
+action spaces and learn from the same reward function and so *they can share the same policy*. In asymmetric games,
+this is not the case. An example of an asymmetric games are Hide and Seek. Agents in these
+types of games do not always have the same observation or action spaces and so sharing policy networks is not
+necessarily ideal.
+
+With self-play, an agent learns in adversarial games by competing against fixed, past versions of its opponent
+(which could be itself as in symmetric games) to provide a more stable, stationary learning environment. This is compared
+to competing against the current, best opponent in every episode, which is constantly changing (because it's learning).
+
+Self-play can be used with our implementations of both Proximal Policy Optimization (PPO) and Soft Actor-Critc (SAC).
+However, from the perspective of an individual agent, these scenarios appear to have non-stationary dynamics because the opponent is often changing.
+This can cause significant issues in the experience replay mechanism used by SAC. Thus, we recommend that users use PPO. For further reading on
+this issue in particular, see the paper [Stabilising Experience Replay for Deep Multi-Agent Reinforcement Learning](https://arxiv.org/pdf/1702.08887.pdf).
+
+## Training Options
+
+### Memory-enhacened Agents
+
+Have you ever entered a room to get something and immediately forgot what you
+were looking for? Don't let that happen to your agents.
+
+![Inspector](images/ml-agents-LSTM.png)
+
+In some scenarios, agents must learn to remember the past in order to take the best
+decision. When an agent only has partial observability of the environment, keeping
+track of past observations can help the agent learn. Deciding what the agents should
+remember in order to solve a task is not easy to do by hand, but our training algorithms
+can learn to keep track of what is important to remember with
+[LSTM](https://en.wikipedia.org/wiki/Long_short-term_memory).
+
+### Curriculum Learning for Complex Tasks
 
 Curriculum learning is a way of training a machine learning model where more
 difficult aspects of a problem are gradually introduced in such a way that the
@@ -321,73 +428,24 @@ The ML-Agents toolkit supports setting custom environment parameters within
 the Academy. This allows elements of the environment related to difficulty or
 complexity to be dynamically adjusted based on training progress.
 
-### Curiosity for Sparse Rewards
+### Curiosity for Sparse-reward Environments
 
-### Imitation Learning
+The `curiosity` Reward Signal enables the Intrinsic Curiosity Module. This is an implementation
+of the approach described in "Curiosity-driven Exploration by Self-supervised Prediction"
+by Pathak, et al. It trains two networks:
+* an inverse model, which takes the current and next observation of the agent, encodes them, and
+uses the encoding to predict the action that was taken between the observations
+* a forward model, which takes the encoded current observation and action, and predicts the
+next encoded observation.
 
-It is often more intuitive to simply demonstrate the behavior we want an agent
-to perform, rather than attempting to have it learn via trial-and-error methods.
-For example, instead of indirectly training a medic with the help
-of a reward function, we can give the medic real world examples of observations
-from the game and actions from a game controller to guide the medic's behavior.
-Imitation Learning uses pairs of observations and actions from
-a demonstration to learn a policy. See this
-[video demo](https://youtu.be/kpb8ZkMBFYs) of imitation learning .
+The loss of the forward model (the difference between the predicted and actual encoded observations) is used as the intrinsic reward, so the more surprised the model is, the larger the reward will be.
 
-Imitation learning can either be used alone or in conjunction with reinforcement learning.
-Especially in environments with sparse (i.e., infrequent or rare) rewards, the agent may never see
-the reward and thus not learn from it. Curiosity (which is available in the toolkit)
-helps the agent explore, but in some cases it is easier to show the agent how to
-achieve the reward. In these cases, imitation learning combined with reinforcement
-learning can dramatically reduce the time the agent takes to solve the environment.
-For instance, on the [Pyramids environment](Learning-Environment-Examples.md#pyramids),
-using 6 episodes of demonstrations can reduce training steps by more than 4 times.
-See Behavioral Cloning + GAIL + Curiosity + RL below.
+For more information, see
+* https://arxiv.org/abs/1705.05363
+* https://pathak22.github.io/noreward-rl/
+* https://blogs.unity3d.com/2018/06/26/solving-sparse-reward-tasks-with-curiosity/
 
-<p align="center">
-  <img src="images/mlagents-ImitationAndRL.png"
-       alt="Using Demonstrations with Reinforcement Learning"
-       width="700" border="0" />
-</p>
-
-The ML-Agents Toolkit provides a way to learn directly from demonstrations, as well as use them
-to help speed up reward-based training (RL). We include two algorithms called
-Behavioral Cloning (BC) and Generative Adversarial Imitation Learning (GAIL).
-In most scenarios, you can combine these two features.
-
-* GAIL (Generative Adversarial Imitation Learning) uses an adversarial approach to
-  reward your Agent for behaving similar to a set of demonstrations. To use GAIL, you can add the
-  [GAIL reward signal](Reward-Signals.md#gail-reward-signal). GAIL can be
-  used with or without environment rewards, and works well when there are a limited
-  number of demonstrations.
-* Behavioral Cloning (BC) trains the Agent's policy to exactly mimic the actions
-  shown in a set of demonstrations.
-  The BC feature can be enabled on the PPO or SAC trainers. As BC cannot generalize
-  past the examples shown in the demonstrations, BC tends to work best when there exists demonstrations
-  for nearly all of the states that the agent can experience, or in conjunction with GAIL and/or an extrinsic reward.
-
-#### Recording Demonstrations
-
-Demonstrations of agent behavior can be recorded from the Unity Editor,
-and saved as assets. These demonstrations contain information on the
-observations, actions, and rewards for a given agent during the recording session.
-They can be managed in the Editor, as well as used for training with BC and GAIL.
-
-### Memory-enhacened Agents using Recurrent Neural Networks
-
-Have you ever entered a room to get something and immediately forgot what you
-were looking for? Don't let that happen to your agents.
-
-![Inspector](images/ml-agents-LSTM.png)
-
-In some scenarios, agents must learn to remember the past in order to take the best
-decision. When an agent only has partial observability of the environment, keeping
-track of past observations can help the agent learn. Deciding what the agents should
-remember in order to solve a task is not easy to do by hand, but our training algorithms
-can learn to keep track of what is important to remember with
-[LSTM](https://en.wikipedia.org/wiki/Long_short-term_memory).
-
-### Environment Parameter Randomization
+### Environment Parameter Randomization for Robust Agents
 
 An agent trained on a specific environment, may be unable to generalize to any
 tweaks or variations in the environment (in machine learning this is referred to
@@ -410,6 +468,46 @@ Ball scale of 0.5          |  Ball scale of 4
 ![](images/3dball_small.png)  |  ![](images/3dball_big.png)
 
 
+## Reward Options: Instrinsic vs Extrinsic
+
+To train an agent, you will need to provide the agent one or more reward signals which
+the agent should attempt to maximize. This page highlights the available reward signals
+and the corresponding hyperparameters.
+
+In reinforcement learning, the end goal for the Agent is to discover a behavior (a Policy)
+that maximizes a reward. Typically, a reward is defined by your environment, and corresponds
+to reaching some goal. These are what we refer to as "extrinsic" rewards, as they are defined
+external of the learning algorithm.
+
+Rewards, however, can be defined outside of the environment as well, to encourage the agent to
+behave in certain ways, or to aid the learning of the true extrinsic reward. We refer to these
+rewards as "intrinsic" reward signals. The total reward that the agent will learn to maximize can
+be a mix of extrinsic and intrinsic reward signals.
+
+ML-Agents allows reward signals to be defined in a modular way, and we provide three reward
+signals that can the mixed and matched to help shape your agent's behavior. The `extrinsic` Reward
+Signal represents the rewards defined in your environment, and is enabled by default.
+The `curiosity` reward signal helps your agent explore when extrinsic rewards are sparse.
+
+## Agent Options
+
+### Complex Visual Observations
+
+ Unlike other platforms, where the agent’s
+  observation might be limited to a single vector or image, the ML-Agents
+  toolkit allows multiple cameras to be used for observations per agent. This
+  enables agents to learn to integrate information from multiple visual streams.
+  This can be helpful in several scenarios such as training a self-driving car
+  which requires multiple cameras with different viewpoints, or a navigational
+  agent which might need to integrate aerial and first-person visuals. You can
+  learn more about adding visual observations to an agent
+  [here](Learning-Environment-Design-Agents.md#multiple-visual-observations).
+
+
+### Raycast Sensors
+
+### Stacking Vector Observations
+
 ## Additional Features
 
 Beyond the flexible training scenarios available, the ML-Agents Toolkit includes
@@ -427,16 +525,6 @@ training process.
   leveraging Unity as a visualization tool and providing these outputs in
   real-time, researchers and developers can more easily debug an Agent’s
   behavior.
-
-- **Complex Visual Observations** - Unlike other platforms, where the agent’s
-  observation might be limited to a single vector or image, the ML-Agents
-  toolkit allows multiple cameras to be used for observations per agent. This
-  enables agents to learn to integrate information from multiple visual streams.
-  This can be helpful in several scenarios such as training a self-driving car
-  which requires multiple cameras with different viewpoints, or a navigational
-  agent which might need to integrate aerial and first-person visuals. You can
-  learn more about adding visual observations to an agent
-  [here](Learning-Environment-Design-Agents.md#multiple-visual-observations).
 
 ## Summary and Next Steps
 

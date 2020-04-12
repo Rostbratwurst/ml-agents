@@ -19,19 +19,19 @@
 * [Making a New Learning Environment](Learning-Environment-Create-New.md)
 * [Designing a Learning Environment](Learning-Environment-Design.md)
 * [Designing Agents](Learning-Environment-Design-Agents.md)
-
-### Advanced Usage
-  * [Using the Monitor](Feature-Monitor.md)
-  * [Using an Executable Environment](Learning-Environment-Executable.md)
-  * [Creating Custom Side Channels](Custom-SideChannels.md)
+* [Using the Monitor](Feature-Monitor.md)
 
 ## Training
 
 * [Training ML-Agents](Training-ML-Agents.md)
+  * [Using an Executable Environment](Learning-Environment-Executable.md)
+  * [Reward Signals](Reward-Signals.md)
+  * [Profiling Trainers](Profiling-Python.md)
 * [Using TensorBoard to Observe Training](Using-Tensorboard.md)
 * [Training Using Concurrent Unity Instances](Training-Using-Concurrent-Unity-Instances.md)
 * [Training with Proximal Policy Optimization](Training-PPO.md)
 * [Training with Soft Actor-Critic](Training-SAC.md)
+* [Training with Self-Play](Training-Self-Play.md)
 
 ### Advanced Training Methods
 
@@ -43,6 +43,10 @@
 ## Inference
 
 * [Unity Inference Engine](Unity-Inference-Engine.md)
+
+## Extending ML-Agents
+
+* [Creating Custom Side Channels](Custom-SideChannels.md)
 
 ## Help
 
@@ -73,8 +77,8 @@ we welcome any enhancements and improvements from the community.
 We no longer use them ourselves and so they may not be up-to-date.
 We've decided to keep them up just in case they are helpful to you.
 
-* [Using the Video Recorder](https://github.com/Unity-Technologies/video-recorder)
+* [Windows Anaconda Installation](Installation-Anaconda-Windows.md)
+* [Using Docker](Using-Docker.md)
 * [Training on the Cloud with Amazon Web Services](Training-on-Amazon-Web-Service.md)
 * [Training on the Cloud with Microsoft Azure](Training-on-Microsoft-Azure.md)
-* [Using Docker](Using-Docker.md)
-* [Windows Anaconda Installation](Installation-Anaconda-Windows.md)
+* [Using the Video Recorder](https://github.com/Unity-Technologies/video-recorder)

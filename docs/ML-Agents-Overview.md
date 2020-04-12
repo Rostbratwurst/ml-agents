@@ -215,68 +215,6 @@ You can even turn your environment into a [gym.](../gym-unity/README.md)
 We do not currently have a tutorial highlighting this mode, but you can
 learn more about the Python API [here](Python-API.md).
 
-### Curriculum Learning
-
-This mode is an extension of _Built-in Training and Inference_, and is
-particularly helpful when training intricate behaviors for complex environments.
-Curriculum learning is a way of training a machine learning model where more
-difficult aspects of a problem are gradually introduced in such a way that the
-model is always optimally challenged. This idea has been around for a long time,
-and it is how we humans typically learn. If you imagine any childhood primary
-school education, there is an ordering of classes and topics. Arithmetic is
-taught before algebra, for example. Likewise, algebra is taught before calculus.
-The skills and knowledge learned in the earlier subjects provide a scaffolding
-for later lessons. The same principle can be applied to machine learning, where
-training on easier tasks can provide a scaffolding for harder tasks in the
-future.
-
-<p align="center">
-  <img src="images/math.png"
-       alt="Example Math Curriculum"
-       width="700"
-       border="10" />
-</p>
-
-_Example of a mathematics curriculum. Lessons progress from simpler topics to
-more complex ones, with each building on the last._
-
-When we think about how reinforcement learning actually works, the learning reward
-signal is received occasionally throughout training. The starting point
-when training an agent to accomplish this task will be a random policy. That
-starting policy will have the agent running in circles, and will likely never,
-or very rarely achieve the reward for complex environments. Thus by simplifying
-the environment at the beginning of training, we allow the agent to quickly
-update the random policy to a more meaningful one that is successively improved
-as the environment gradually increases in complexity. In our example, we can
-imagine first training the medic when each team only contains one player, and
-then iteratively increasing the number of players (i.e. the environment
-complexity). The ML-Agents toolkit supports setting custom environment
-parameters within the Academy. This allows elements of the environment related
-to difficulty or complexity to be dynamically adjusted based on training
-progress.
-
-The [Training with Curriculum Learning](Training-Curriculum-Learning.md)
-tutorial covers this training mode with the **Wall Area** sample environment.
-
-### Imitation Learning
-
-It is often more intuitive to simply demonstrate the behavior we want an agent
-to perform, rather than attempting to have it learn via trial-and-error methods.
-For example, instead of training the medic by setting up its reward function,
-this mode allows providing real examples from a game controller on how the medic
-should behave. More specifically, in this mode, the Agent must use its heuristic
-to generate action, and all the actions performed with the controller (in addition
-to the agent observations) will be recorded. The
-imitation learning algorithm will then use these pairs of observations and
-actions from the human player to learn a policy. [Video
-Link](https://youtu.be/kpb8ZkMBFYs).
-
-The toolkit provides a way to learn directly from demonstrations, as well as use them
-to help speed up reward-based training (RL). We include two algorithms called
-Behavioral Cloning (BC) and Generative Adversarial Imitation Learning (GAIL). The
-[Training with Imitation Learning](Training-Imitation-Learning.md) tutorial covers these
-features in more depth.
-
 ## Flexible Training Scenarios
 
 While the discussion so-far has mostly focused on training a single agent, with
@@ -316,19 +254,149 @@ inspiration:
   interact, such as a savanna in which there might be zebras, elephants and
   giraffes, or an autonomous driving simulation within an urban environment.
 
+## Training Options
+
+### Deep Reinforcement Learning
+
+
+### Curriculum Learning
+
+Curriculum learning is a way of training a machine learning model where more
+difficult aspects of a problem are gradually introduced in such a way that the
+model is always optimally challenged. This idea has been around for a long time,
+and it is how we humans typically learn. If you imagine any childhood primary
+school education, there is an ordering of classes and topics. Arithmetic is
+taught before algebra, for example. Likewise, algebra is taught before calculus.
+The skills and knowledge learned in the earlier subjects provide a scaffolding
+for later lessons. The same principle can be applied to machine learning, where
+training on easier tasks can provide a scaffolding for harder tasks in the
+future.
+
+Imagine training the medic to to scale a wall to arrive at a wounded team member.
+The starting point when training a medic to accomplish this task will be a random
+policy. That starting policy will have the medic running in circles, and will
+likely never, or very rarely scale the wall properly to revive their team member
+(and achieve the reward). If we start with a simpler task, such as moving toward
+an unobstructed team member, then the medic can easily learn to accomplish the task.
+From there, we can slowly add to the difficulty of the task by increasing the size of
+the wall until the medic can complete the initially near-impossible task of scaling the
+wall. We have included an environment to demonstrate this with ML-Agents,
+called [Wall Jump](Learning-Environment-Examples.md#wall-jump).
+
+![Wall](images/curriculum.png)
+
+_Demonstration of a curriculum training scenario in which a progressively taller
+wall obstructs the path to the goal._
+
+To see curriculum learning in action, observe the two learning curves below. Each
+displays the reward over time for an agent trained using PPO with the same set of
+training hyperparameters. The difference is that one agent was trained using the
+full-height wall version of the task, and the other agent was trained using the
+curriculum version of the task. As you can see, without using curriculum
+learning the agent has a lot of difficulty. We think that by using well-crafted
+curricula, agents trained using reinforcement learning will be able to
+accomplish tasks otherwise much more difficult.
+
+![Log](images/curriculum_progress.png)
+
+The ML-Agents toolkit supports setting custom environment parameters within
+the Academy. This allows elements of the environment related to difficulty or
+complexity to be dynamically adjusted based on training progress.
+
+### Curiosity for Sparse Rewards
+
+### Imitation Learning
+
+It is often more intuitive to simply demonstrate the behavior we want an agent
+to perform, rather than attempting to have it learn via trial-and-error methods.
+For example, instead of indirectly training a medic with the help
+of a reward function, we can give the medic real world examples of observations
+from the game and actions from a game controller to guide the medic's behavior.
+Imitation Learning uses pairs of observations and actions from
+a demonstration to learn a policy. See this
+[video demo](https://youtu.be/kpb8ZkMBFYs) of imitation learning .
+
+Imitation learning can either be used alone or in conjunction with reinforcement learning.
+Especially in environments with sparse (i.e., infrequent or rare) rewards, the agent may never see
+the reward and thus not learn from it. Curiosity (which is available in the toolkit)
+helps the agent explore, but in some cases it is easier to show the agent how to
+achieve the reward. In these cases, imitation learning combined with reinforcement
+learning can dramatically reduce the time the agent takes to solve the environment.
+For instance, on the [Pyramids environment](Learning-Environment-Examples.md#pyramids),
+using 6 episodes of demonstrations can reduce training steps by more than 4 times.
+See Behavioral Cloning + GAIL + Curiosity + RL below.
+
+<p align="center">
+  <img src="images/mlagents-ImitationAndRL.png"
+       alt="Using Demonstrations with Reinforcement Learning"
+       width="700" border="0" />
+</p>
+
+The ML-Agents Toolkit provides a way to learn directly from demonstrations, as well as use them
+to help speed up reward-based training (RL). We include two algorithms called
+Behavioral Cloning (BC) and Generative Adversarial Imitation Learning (GAIL).
+In most scenarios, you can combine these two features.
+
+* GAIL (Generative Adversarial Imitation Learning) uses an adversarial approach to
+  reward your Agent for behaving similar to a set of demonstrations. To use GAIL, you can add the
+  [GAIL reward signal](Reward-Signals.md#gail-reward-signal). GAIL can be
+  used with or without environment rewards, and works well when there are a limited
+  number of demonstrations.
+* Behavioral Cloning (BC) trains the Agent's policy to exactly mimic the actions
+  shown in a set of demonstrations.
+  The BC feature can be enabled on the PPO or SAC trainers. As BC cannot generalize
+  past the examples shown in the demonstrations, BC tends to work best when there exists demonstrations
+  for nearly all of the states that the agent can experience, or in conjunction with GAIL and/or an extrinsic reward.
+
+#### Recording Demonstrations
+
+Demonstrations of agent behavior can be recorded from the Unity Editor,
+and saved as assets. These demonstrations contain information on the
+observations, actions, and rewards for a given agent during the recording session.
+They can be managed in the Editor, as well as used for training with BC and GAIL.
+
+### Memory-enhacened Agents using Recurrent Neural Networks
+
+Have you ever entered a room to get something and immediately forgot what you
+were looking for? Don't let that happen to your agents.
+
+![Inspector](images/ml-agents-LSTM.png)
+
+In some scenarios, agents must learn to remember the past in order to take the best
+decision. When an agent only has partial observability of the environment, keeping
+track of past observations can help the agent learn. Deciding what the agents should
+remember in order to solve a task is not easy to do by hand, but our training algorithms
+can learn to keep track of what is important to remember with
+[LSTM](https://en.wikipedia.org/wiki/Long_short-term_memory).
+
+### Environment Parameter Randomization
+
+An agent trained on a specific environment, may be unable to generalize to any
+tweaks or variations in the environment (in machine learning this is referred to
+as overfitting). This becomes problematic in cases where environments are instantiated
+with varying objects or properties. One mechanism to alleviate this and train more
+robust agents that can generalize to unseen variations of the environment
+is to expose them to these variations during training. Similar to Curriculum Learning,
+where environments become more difficult as the agent learns, the ML-Agents Toolkit provides
+a way to randomly sample parameters of the environment during training. We refer to
+this approach as **Environment Parameter Randomization**. For those familiar with
+Reinforcement Learning research, this approach is based on the concept of Domain Randomization
+(you can read more about it [here](https://arxiv.org/abs/1703.06907)). By using parameter
+randomization during training, the agent can be better suited to adapt (with higher performance)
+to future unseen variations of the environment.
+
+_Example of variations of the 3D Ball environment._
+
+Ball scale of 0.5          |  Ball scale of 4
+:-------------------------:|:-------------------------:
+![](images/3dball_small.png)  |  ![](images/3dball_big.png)
+
+
 ## Additional Features
 
-Beyond the flexible training scenarios available, the ML-Agents toolkit includes
+Beyond the flexible training scenarios available, the ML-Agents Toolkit includes
 additional features which improve the flexibility and interpretability of the
 training process.
-
-- **Memory-enhanced Agents** - In some scenarios, agents must learn to remember
-  the past in order to take the best decision. When an agent only has partial
-  observability of the environment, keeping track of past observations can help
-  the agent learn. We provide an implementation of _Long Short-term Memory_
-  ([LSTM](https://en.wikipedia.org/wiki/Long_short-term_memory)) in our trainers
-  that enable the agent to store memories to be used in future steps. You can
-  learn more about enabling LSTM during training [here](Feature-Memory.md).
 
 - **Monitoring Agent’s Decision Making** - Since communication in ML-Agents is a
   two-way street, we provide an Agent Monitor class in Unity which can display
@@ -348,13 +416,6 @@ training process.
   agent which might need to integrate aerial and first-person visuals. You can
   learn more about adding visual observations to an agent
   [here](Learning-Environment-Design-Agents.md#multiple-visual-observations).
-
-- **Training with Environment Parameter Randomization** - If an agent is exposed to several variations of an environment, it will be more robust (i.e. generalize better) to
-  unseen variations of the environment. Similar to Curriculum Learning,
-  where environments become more difficult as the agent learns, the toolkit provides
-  a way to randomly sample parameters of the environment during training. See
-  [Training With Environment Parameter Randomization](Training-Environment-Parameter-Randomization.md)
-  to learn more about this feature.
 
 ## Summary and Next Steps
 

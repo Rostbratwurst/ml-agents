@@ -34,12 +34,9 @@ The first task to accomplish is simply creating a new Unity project and
 importing the ML-Agents assets into it:
 
 1. Launch the Unity Editor and create a new project named "RollerBall".
-2. Make sure that the Scripting Runtime Version for the project is set to use
-    **.NET 4.x Equivalent** (This is an experimental option in Unity 2017,
-    but is the default as of 2018.3.)
-3. In a file system window, navigate to the folder containing your cloned
+2. In a file system window, navigate to the folder containing your cloned
     ML-Agents repository.
-4. Open the `manifest.json` file in the `Packages` directory of your project.
+3. Open the `manifest.json` file in the `Packages` directory of your project.
     Add the following line to your project's package dependencies:
     ```
         "com.unity.ml-agents" : "file:<path_to_local_ml-agents_repo>/com.unity.ml-agents"

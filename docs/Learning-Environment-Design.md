@@ -15,12 +15,12 @@ use.
 The ML-Agents Academy class orchestrates the agent simulation loop as follows:
 
 1. Calls your Academy's `OnEnvironmentReset` delegate.
-2. Calls the `OnEpisodeBegin()` function for each Agent in the scene.
-3. Calls the  `CollectObservations(VectorSensor sensor)` function for each Agent in the scene.
-4. Uses each Agent's Policy to decide on the Agent's next action.
-5. Calls the `OnActionReceived()` function for each Agent in the scene, passing in
+1. Calls the `OnEpisodeBegin()` function for each Agent in the scene.
+1. Calls the  `CollectObservations(VectorSensor sensor)` function for each Agent in the scene.
+1. Uses each Agent's Policy to decide on the Agent's next action.
+1. Calls the `OnActionReceived()` function for each Agent in the scene, passing in
    the action chosen by the Agent's Policy.
-6. Calls the Agent's `OnEpisodeBegin()` function if the Agent has reached its `Max
+1. Calls the Agent's `OnEpisodeBegin()` function if the Agent has reached its `Max
    Step` count or has otherwise marked itself as `EndEpisode()`.
 
 To create a training environment, extend the Agent class to

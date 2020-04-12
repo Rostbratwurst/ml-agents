@@ -62,9 +62,9 @@ contains agents ready to train. To perform the training:
 
 1. [Build the project](Learning-Environment-Executable.md), making sure that you
    only include the training scene.
-2. Open a terminal or console window.
-3. Navigate to the directory where you installed the ML-Agents Toolkit.
-4. Run the following to launch the training process using the path to the Unity
+1. Open a terminal or console window.
+1. Navigate to the directory where you installed the ML-Agents Toolkit.
+1. Run the following to launch the training process using the path to the Unity
    environment you built in step 1:
 
 ```sh

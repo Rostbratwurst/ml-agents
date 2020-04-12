@@ -1,44 +1,32 @@
 # Training ML-Agents
 
-The ML-Agents toolkit conducts training using an external Python training
-process. During training, this external process communicates with the Academy
-to generate a block of agent experiences. These
-experiences become the training set for a neural network used to optimize the
-agent's policy (which is essentially a mathematical function mapping
-observations to actions). In reinforcement learning, the neural network
-optimizes the policy by maximizing the expected rewards. In imitation learning,
-the neural network optimizes the policy to achieve the smallest difference
-between the actions chosen by the agent trainee and the actions chosen by the
-expert in the same situation.
+For a broad overview of reinforcement learning, imitation learning and all the
+training scenarios, methods and options within the ML-Agents Toolkit, see
+[ML-Agents Toolkit Overview](ML-Agents-Overview.md).
 
-The output of the training process is a model file containing the optimized
-policy. This model file is a TensorFlow data graph containing the mathematical
-operations and the optimized weights selected during the training process. You
-can set the generated model file in the Behaviors Parameters under your
-Agent in your Unity project to decide the best course of action for an agent.
-
-Use the command `mlagents-learn` to train your agents. This command is installed
-with the `mlagents` package and its implementation can be found at
-`ml-agents/mlagents/trainers/learn.py`. The [configuration file](#training-config-file),
-like `config/trainer_config.yaml` specifies the hyperparameters used during training.
-You can edit this file with a text editor to add a specific configuration for
-each Behavior.
-
-For a broader overview of reinforcement learning, imitation learning and the
-ML-Agents training process, see [ML-Agents Toolkit
-Overview](ML-Agents-Overview.md).
+Once your learning environment has been created and is ready for training, the next
+step is to initiate a training session. Training in the ML-Agents Toolkit is powered
+by a dedicated Python package, `mlagents`. This package exposes a command `mlagents-learn` that
+is the single entry point for all training workflows (e.g. reinforcement
+leaning, imitation learning, curriculum learning). Its implementation can be found at
+[ml-agents/mlagents/trainers/learn.py](../ml-agents/mlagents/trainers/learn.py).
 
 ## Training with mlagents-learn
 
-Use the `mlagents-learn` command to train agents. `mlagents-learn` supports
-training with
-[reinforcement learning](Background-Machine-Learning.md#reinforcement-learning),
-[curriculum learning](Training-Curriculum-Learning.md),
-and [behavioral cloning imitation learning](Training-Imitation-Learning.md).
+### Starting Training
 
-Run `mlagents-learn` from the command line to launch the training process. Use
-the command line patterns and the `config/trainer_config.yaml` file to control
-training options.
+`mlagents-learn` is the main training utility provided by the ML-Agents Toolkit. It
+accepts a number of CLI options in addition to a YAML configuration file that contains
+all the configurations and hyperparameters to be used during training. The set of
+configurations and hyperparameters to include in this file depend on the agents in your
+environment and the specific training method you wish to utilize. Keep in mind that
+the hyperparameter values can have a big impact on the training performance (i.e. your
+agent's ability to learn a policy that solves the task). In this page, we will review all the hyperparameters for all training methods and provide guidelines and advice on their values.
+
+The view a description of all the CLI options accepted by `mlagents-learn`, use the `--help`:
+```sh
+mlagents-learn --help
+```
 
 The basic command for training is:
 
@@ -49,82 +37,75 @@ mlagents-learn <trainer-config-file> --env=<env_name> --run-id=<run-identifier>
 where
 
 * `<trainer-config-file>` is the file path of the trainer configuration yaml.
-* `<env_name>`__(Optional)__ is the name (including path) of your Unity
-  executable containing the agents to be trained. If `<env_name>` is not passed,
-  the training will happen in the Editor. Press the :arrow_forward: button in
-  Unity when the message _"Start training by pressing the Play button in the
-  Unity Editor"_ is displayed on the screen.
-* `<run-identifier>` is an optional identifier you can use to identify the
-  results of individual training runs.
+* `<env_name>`__(Optional)__ is the name (including path) of your [Unity
+  executable](Learning-Environment-Executable.md) containing the agents to be trained.
+  If `<env_name>` is not passed, the training will happen in the Editor.
+  Press the :arrow_forward: button in Unity when the message _"Start training by
+  pressing the Play button in the Unity Editor"_ is displayed on the screen.
+* `<run-identifier>` is a unique name you can use to identify the results of your training runs.
 
-For example, suppose you have a project in Unity named "CatsOnBicycles" which
-contains agents ready to train. To perform the training:
+See the [Getting Started Guide](Getting-Started.md) for a sample execution of the
+`mlagents-learn` command.
 
-1. [Build the project](Learning-Environment-Executable.md), making sure that you
-   only include the training scene.
-1. Open a terminal or console window.
-1. Navigate to the directory where you installed the ML-Agents Toolkit.
-1. Run the following to launch the training process using the path to the Unity
-   environment you built in step 1:
+#### Observe Training
 
-```sh
-mlagents-learn config/trainer_config.yaml --env=../../projects/Cats/CatsOnBicycles.app --run-id=cob_1
-```
+Regardless of which training methods, configurations or hyperparameters you provide,
+the training process will always generate three artifacts:
+1. Summaries (under the `summaries/` folder): these are training metrics that are updated
+throughout the training process. They are helpful to monitor your training performance
+and may help inform how to update your hyperparameter values.
+See [Using TensorBoard](Using-Tensorboard.md) for more details on how to visualize
+the training metrics.
+1. Models (under the `models/` folder): these contain the model checkpoints that are updated
+throughout training and the final model file (`.nn`). This final model file is generated once
+either when training completes or is interrupted.
+1. Timers file (also under the `summaries/` folder): this contains aggregated metrics on your training process, including time spent on specific code blocks. See [Profiling in Python](Profiling-Python.md)
+for more information on the timers generated.
 
-During a training session, the training program prints out and saves updates at
-regular intervals (specified by the `summary_freq` option). The saved statistics
-are grouped by the `run-id` value so you should assign a unique id to each
-training run if you plan to view the statistics. You can view these statistics
-using TensorBoard during or after training by running the following command:
+These artifacts (except the `.nn` file) are updated throughout the training process and finalized
+when training completes or is interrupted.
 
-```sh
-tensorboard --logdir=summaries --port 6006
-```
+#### Debugging
 
-And then opening the URL: [localhost:6006](http://localhost:6006).
+If you enable the `--debug` flag in the command line, the trainer metrics are logged to a CSV file
+stored in the `summaries` directory. The metrics stored are:
+  * brain name
+  * time to update policy
+  * time since start of training
+  * time for last experience collection
+  * number of experiences used for training
+  * mean return
 
-**Note:** The default port TensorBoard uses is 6006. If there is an existing session
-running on port 6006 a new session can be launched on an open port using the --port
-option.
+This option is not available currently for Behavioral Cloning.
 
-When training is finished, you can find the saved model in the `models` folder
-under the assigned run-id — in the cats example, the path to the model would be
-`models/cob_1/CatsOnBicycles_cob_1.nn`.
-
-While this example used the default training hyperparameters, you can edit the
-[trainer_config.yaml file](#training-config-file) with a text editor to set
-different values.
+#### Stopping and Resuming Training
 
 To interrupt training and save the current progress, hit Ctrl+C once and wait for the
 model to be saved out.
 
-### Loading an Existing Model
+To resume a previously interrupted or completed training run, use the `--resume` flag and
+make sure to specify the previously used `run-id`.
 
-If you've quit training early using Ctrl+C, you can resume the training run by running
-`mlagents-learn` again, specifying the same `<run-identifier>` and appending the `--resume` flag
-to the command.
+If you would like to re-run a previously interrupted or completed training run and re-use
+the same run-id (in this case, overwriting the previously generated artifacts), then
+use the `--force` flag.
 
-You can also use this mode to run inference of an already-trained model in Python.
-Append both the `--resume` and `--inference` to do this. Note that if you want to run
-inference in Unity, you should use the
-[Unity Inference Engine](Getting-started#Running-a-pre-trained-model).
+#### Loading an Existing Model
 
-If you've already trained a model using the specified `<run-identifier>` and `--resume` is not
-specified, you will not be able to continue with training. Use `--force` to force ML-Agents to
-overwrite the existing data.
+You can also use this mode to run inference of an already-trained model in Python by
+using both the `--resume` and `--inference` flags. Note that if you want to run
+inference in Unity, you should use the [Unity Inference Engine](Unity-Inference-Engine.md).
 
 Alternatively, you might want to start a new training run but _initialize_ it using an already-trained
 model. You may want to do this, for instance, if your environment changed and you want
 a new model, but the old behavior is still better than random. You can do this by specifying `--initialize-from=<run-identifier>`, where `<run-identifier>` is the old run ID.
 
-### Command Line Training Options
+## Training Set-up
 
-In addition to passing the path of the Unity executable containing your training
-environment, you can set several command line options. Checkout
-[learn.py](../ml-agents/mlagents/trainers/learn.py) or run `mlagents-learn --help` to
-view detailed descriptons for all the command-line options.
-
-### Training Config File
+The Unity ML-Agents Toolkit provides a wide range of training scenarios, methods and options.
+As such, specific training runs may require different training configurations and may
+generate different artifacts and TensorBoard statistics. This section offers a detailed
+guide into how to manage the different training set-ups withing the toolkit.
 
 The training config files `config/trainer_config.yaml`, `config/sac_trainer_config.yaml`,
 `config/gail_config.yaml` and `config/offline_bc_config.yaml` specifies the training method,
@@ -137,6 +118,13 @@ The **default** section defines the default values for all the available setting
 also add new sections to override these defaults to train specific Behaviors. Name each of these
 override sections after the appropriate `Behavior Name`. Sections for the
 example environments are included in the provided config file.
+
+You can also compare the [example environments](Learning-Environment-Examples.md)
+to the corresponding sections of the `config/trainer_config.yaml` file for each
+example to see how the hyperparameters and other configuration variables have
+been changed from the defaults.
+
+\*PPO = Proximal Policy Optimization, SAC = Soft Actor-Critic, BC = Behavioral Cloning (Imitation), GAIL = Generative Adversarial Imitation Learning
 
 |     **Setting**      |                                                                                     **Description**                                                                                     | **Applies To Trainer\*** |
 | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------- |
@@ -168,36 +156,3 @@ example environments are included in the provided config file.
 | num_update           | Number of mini-batches to update the agent with during each update.                                                                                                                     | SAC                      |
 | use_recurrent        | Train using a recurrent neural network. See [Using Recurrent Neural Networks](Feature-Memory.md).                                                                                       | PPO, SAC             |
 | init_path        | Initialize trainer from a previously saved model.                                                                                       | PPO, SAC             |
-
-\*PPO = Proximal Policy Optimization, SAC = Soft Actor-Critic, BC = Behavioral Cloning (Imitation), GAIL = Generative Adversarial Imitaiton Learning
-
-For specific advice on setting hyperparameters based on the type of training you
-are conducting, see:
-
-* [Training with PPO](Training-PPO.md)
-* [Training with SAC](Training-SAC.md)
-* [Using Recurrent Neural Networks](Feature-Memory.md)
-* [Training with Curriculum Learning](Training-Curriculum-Learning.md)
-* [Training with Imitation Learning](Training-Imitation-Learning.md)
-* [Training with Environment Parameter Randomization](Training-Environment-Parameter-Randomization.md)
-
-You can also compare the
-[example environments](Learning-Environment-Examples.md)
-to the corresponding sections of the `config/trainer_config.yaml` file for each
-example to see how the hyperparameters and other configuration variables have
-been changed from the defaults.
-
-### Debugging and Profiling
-If you enable the `--debug` flag in the command line, the trainer metrics are logged to a CSV file
-stored in the `summaries` directory. The metrics stored are:
-  * brain name
-  * time to update policy
-  * time since start of training
-  * time for last experience collection
-  * number of experiences used for training
-  * mean return
-
-This option is not available currently for Behavioral Cloning.
-
-Additionally, we have included basic [Profiling in Python](Profiling-Python.md) as part of the toolkit.
-This information is also saved in the `summaries` directory.

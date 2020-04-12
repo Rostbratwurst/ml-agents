@@ -223,32 +223,32 @@ kinds of novel and fun environments the community creates. For those new to
 training intelligent agents, below are a few examples that can serve as
 inspiration:
 
-- Single-Agent. A single agent, with its own reward
+* Single-Agent. A single agent, with its own reward
   signal. The traditional way of training an agent. An example is any
   single-player game, such as Chicken.
-- Simultaneous Single-Agent. Multiple independent agents with independent reward
+* Simultaneous Single-Agent. Multiple independent agents with independent reward
   signals with same `Behavior Parameters`. A parallelized version of the traditional
   training scenario, which can speed-up and stabilize the training process.
   Helpful when you have multiple versions of the same character in an
   environment who should learn similar behaviors. An example might be training a
   dozen robot-arms to each open a door simultaneously.
-- Adversarial Self-Play. Two interacting agents with inverse reward signals.
+* Adversarial Self-Play. Two interacting agents with inverse reward signals.
   In two-player games, adversarial self-play can allow
   an agent to become increasingly more skilled, while always having the
   perfectly matched opponent: itself. This was the strategy employed when
   training AlphaGo, and more recently used by OpenAI to train a human-beating
   1-vs-1 Dota 2 agent.
-- Cooperative Multi-Agent. Multiple interacting agents with a shared reward
+* Cooperative Multi-Agent. Multiple interacting agents with a shared reward
   signal with same or different `Behavior Parameters`. In this
   scenario, all agents must work together to accomplish a task that cannot be
   done alone. Examples include environments where each agent only has access to
   partial information, which needs to be shared in order to accomplish the task
   or collaboratively solve a puzzle.
-- Competitive Multi-Agent. Multiple interacting agents with inverse reward
+* Competitive Multi-Agent. Multiple interacting agents with inverse reward
   signals with same or different `Behavior Parameters`. In this
   scenario, agents must compete with one another to either win a competition, or
   obtain some limited set of resources. All team sports fall into this scenario.
-- Ecosystem. Multiple interacting agents with independent reward signals with
+* Ecosystem. Multiple interacting agents with independent reward signals with
   same or different `Behavior Parameters`. This scenario can be thought
   of as creating a small world in which animals with different goals all
   interact, such as a savanna in which there might be zebras, elephants and
@@ -514,17 +514,23 @@ Beyond the flexible training scenarios available, the ML-Agents Toolkit includes
 additional features which improve the flexibility and interpretability of the
 training process.
 
-- **Concurrent Unity Instances** - we enable developers to run concurrent, parallel
+* **Concurrent Unity Instances** - we enable developers to run concurrent, parallel
   instances of the Unity executable during training. For certain scenarios, this
   should speed up training.
 
-- **Monitoring Agent’s Decision Making** - Since communication in ML-Agents is a
+* **Monitoring Agent’s Decision Making** - Since communication in ML-Agents is a
   two-way street, we provide an Agent Monitor class in Unity which can display
   aspects of the trained Agent, such as the Agents perception on how well it is
   doing (called **value estimates**) within the Unity environment itself. By
   leveraging Unity as a visualization tool and providing these outputs in
   real-time, researchers and developers can more easily debug an Agent’s
   behavior.
+
+![Monitor](images/monitor.png)
+
+The monitor allows visualizing information related to the agents or training
+process within a Unity scene.
+
 
 ## Summary and Next Steps
 

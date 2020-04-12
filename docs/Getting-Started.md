@@ -110,7 +110,7 @@ inside Unity. In this section, we will use the pre-trained model for the
 1. You should notice that each `Agent` under each `3DBall` in the **Hierarchy** windows now contains **3DBall** as `Model` on the `Behavior Parameters`. __Note__ : You can modify multiple game objects in a scene by selecting them all at
    once using the search bar in the Scene Hierarchy.
 1. Set the **Inference Device** to use for this model as `CPU`.
-1. Click the **Play** button and you will see the platforms balance the balls
+1. Click the :arrow_forward: button in the Unity Editor and you will see the platforms balance the balls
    using the pre-trained model.
 
 ## Training a new model with Reinforcement Learning

@@ -25,9 +25,7 @@ Let's get started!
 
 ## Installation
 
-In order to install and set up the ML-Agents Toolkit, the Python dependencies
-and Unity, see the [installation instructions](Installation.md).
-
+If you haven't already, follow the [installation instructions](Installation.md).
 Afterwords, open the Unity Project that contains all the example environments:
 
 1. Launch Unity Hub

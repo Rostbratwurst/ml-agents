@@ -258,6 +258,24 @@ inspiration:
 
 ### Deep Reinforcement Learning
 
+ML-Agents provide an implementation of two reinforcement learning algorithms:
+* [Proximal Policy Optimization (PPO)](https://blog.openai.com/openai-baselines-ppo/)
+* [Soft Actor-Critic (SAC)](https://bair.berkeley.edu/blog/2018/12/14/sac/)
+
+PPO uses a neural network to approximate the ideal function that maps an agent's
+observations to the best action an agent can take in a given state. The
+ML-Agents PPO algorithm is implemented in TensorFlow and runs in a separate
+Python process (communicating with the running Unity application over a socket).
+
+In contrast with PPO, SAC is _off-policy_, which means it can learn from experiences collected
+at any time during the past. As experiences are collected, they are placed in an
+experience replay buffer and randomly drawn during training. This makes SAC
+significantly more sample-efficient, often requiring 5-10 times less samples to learn
+the same task as PPO. However, SAC tends to require more model updates. SAC is a
+good choice for heavier or slower environments (about 0.1 seconds per step or more).
+
+SAC is also a "maximum entropy" algorithm, and enables exploration in an intrinsic way.
+Read more about maximum entropy RL [here](https://bair.berkeley.edu/blog/2017/10/06/soft-q-learning/).
 
 ### Curriculum Learning
 
@@ -398,14 +416,17 @@ Beyond the flexible training scenarios available, the ML-Agents Toolkit includes
 additional features which improve the flexibility and interpretability of the
 training process.
 
+- **Concurrent Unity Instances** - we enable developers to run concurrent, parallel
+  instances of the Unity executable during training. For certain scenarios, this
+  should speed up training.
+
 - **Monitoring Agent’s Decision Making** - Since communication in ML-Agents is a
   two-way street, we provide an Agent Monitor class in Unity which can display
   aspects of the trained Agent, such as the Agents perception on how well it is
   doing (called **value estimates**) within the Unity environment itself. By
   leveraging Unity as a visualization tool and providing these outputs in
   real-time, researchers and developers can more easily debug an Agent’s
-  behavior. You can learn more about using the Monitor class
-  [here](Feature-Monitor.md).
+  behavior.
 
 - **Complex Visual Observations** - Unlike other platforms, where the agent’s
   observation might be limited to a single vector or image, the ML-Agents

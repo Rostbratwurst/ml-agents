@@ -1,5 +1,9 @@
 # Reward Signals
 
+To train an agent, you will need to provide the agent one or more reward signals which
+the agent should attempt to maximize. This page highlights the available reward signals
+and the corresponding hyperparameters.
+
 In reinforcement learning, the end goal for the Agent is to discover a behavior (a Policy)
 that maximizes a reward. Typically, a reward is defined by your environment, and corresponds
 to reaching some goal. These are what we refer to as "extrinsic" rewards, as they are defined

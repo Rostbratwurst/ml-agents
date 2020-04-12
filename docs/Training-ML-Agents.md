@@ -120,75 +120,9 @@ a new model, but the old behavior is still better than random. You can do this b
 ### Command Line Training Options
 
 In addition to passing the path of the Unity executable containing your training
-environment, you can set the following command line options when invoking
-`mlagents-learn`:
-
-* `--env=<env>`: Specify an executable environment to train.
-* `--curriculum=<file>`: Specify a curriculum JSON file for defining the
-  lessons for curriculum training. See [Curriculum
-  Training](Training-Curriculum-Learning.md) for more information.
-* `--sampler=<file>`: Specify a sampler YAML file for defining the
-  sampler for parameter randomization. See [Environment Parameter Randomization](Training-Environment-Parameter-Randomization.md) for more information.
-* `--keep-checkpoints=<n>`: Specify the maximum number of model checkpoints to
-  keep. Checkpoints are saved after the number of steps specified by the
-  `save-freq` option. Once the maximum number of checkpoints has been reached,
-  the oldest checkpoint is deleted when saving a new checkpoint. Defaults to 5.
-* `--lesson=<n>`: Specify which lesson to start with when performing curriculum
-  training. Defaults to 0.
-* `--num-envs=<n>`: Specifies the number of concurrent Unity environment instances to
-  collect experiences from when training. Defaults to 1.
-* `--run-id=<run-identifier>`: Specifies an identifier for each training run. This
-  identifier is used to name the subdirectories in which the trained model and
-  summary statistics are saved as well as the saved model itself. The default id
-  is "ppo". If you use TensorBoard to view the training statistics, always set a
-  unique run-id for each training run. (The statistics for all runs with the
-  same id are combined as if they were produced by a the same session.)
-* `--save-freq=<n>`: Specifies how often (in  steps) to save the model during
-  training. Defaults to 50000.
-* `--seed=<n>`: Specifies a number to use as a seed for the random number
-  generator used by the training code.
-* `--env-args=<string>`: Specify arguments for the executable environment. Be aware that
-  the standalone build will also process these as
-  [Unity Command Line Arguments](https://docs.unity3d.com/Manual/CommandLineArguments.html).
-  You should choose different argument names if you want to create environment-specific arguments.
-  All arguments after this flag will be passed to the executable. For example, setting
-  `mlagents-learn config/trainer_config.yaml --env-args --num-orcs 42` would result in
-   ` --num-orcs 42` passed to the executable.
-* `--base-port`: Specifies the starting port. Each concurrent Unity environment instance
-  will get assigned a port sequentially, starting from the `base-port`. Each instance
-  will use the port `(base_port + worker_id)`, where the `worker_id` is sequential IDs
-  given to each instance from 0 to `num_envs - 1`. Default is 5005. __Note:__ When
-  training using the Editor rather than an executable, the base port will be ignored.
-* `--inference`: Specifies whether to only run in inference mode. Omit to train the model.
-  To load an existing model, specify a run-id and combine with `--resume`.
-* `--resume`: If set, the training code loads an already trained model to
-  initialize the neural network before training. The learning code looks for the
-  model in `models/<run-id>/` (which is also where it saves models at the end of
-  training). This option only works when the models exist, and have the same behavior names
-  as the current agents in your scene.
-* `--force`: Attempting to train a model with a run-id that has been used before will
-  throw an error. Use `--force` to force-overwrite this run-id's summary and model data.
-* `--initialize-from=<run-identifier>`: Specify an old run-id here to initialize your model from
-  a previously trained model. Note that the previously saved models _must_ have the same behavior
-  parameters as your current environment.
-* `--no-graphics`: Specify this option to run the Unity executable in
-  `-batchmode` and doesn't initialize the graphics driver. Use this only if your
-  training doesn't involve visual observations (reading from Pixels). See
-  [here](https://docs.unity3d.com/Manual/CommandLineArguments.html) for more
-  details.
-* `--debug`: Specify this option to enable debug-level logging for some parts of the code.
-* `--cpu`: Forces training using CPU only.
-* Engine Configuration :
-  * `--width` : The width of the executable window of the environment(s) in pixels
-  (ignored for editor training) (Default 84)
-  * `--height` : The height of the executable window of the environment(s) in pixels
-  (ignored for editor training). (Default 84)
-  * `--quality-level` : The quality level of the environment(s). Equivalent to
-  calling `QualitySettings.SetQualityLevel` in Unity. (Default 5)
-  * `--time-scale` : The time scale of the Unity environment(s). Equivalent to setting
-  `Time.timeScale` in Unity. (Default 20.0, maximum 100.0)
-  * `--target-frame-rate` : The target frame rate of the Unity environment(s).
-  Equivalent to setting `Application.targetFrameRate` in Unity. (Default: -1)
+environment, you can set several command line options. Checkout
+[learn.py](../ml-agents/mlagents/trainers/learn.py) or run `mlagents-learn --help` to
+view detailed descriptons for all the command-line options.
 
 ### Training Config File
 

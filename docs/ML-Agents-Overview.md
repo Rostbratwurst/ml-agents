@@ -1,7 +1,7 @@
 # ML-Agents Toolkit Overview
 
 **The Unity Machine Learning Agents Toolkit** (ML-Agents Toolkit) is an
-open-source Unity plugin that enables games and simulations to serve as
+open-source project that enables games and simulations to serve as
 environments for training intelligent agents. Agents can be trained using
 reinforcement learning, imitation learning, neuroevolution, or other machine
 learning methods through a simple-to-use Python API. We also provide
@@ -27,8 +27,9 @@ machine learning concepts or have not previously heard of TensorFlow.
 The remainder of this page contains a deep dive into ML-Agents, its key
 components, different training modes and scenarios. By the end of it, you should
 have a good sense of _what_ the ML-Agents toolkit allows you to do. The
-subsequent documentation pages provide examples of _how_ to use ML-Agents. But
-first, watch this [demo video of ML-Agents in action](https://www.youtube.com/watch?v=fiQsmdwEGT8&feature=youtu.be).
+subsequent documentation pages provide examples of _how_ to use ML-Agents. To get
+started, watch this
+[demo video of ML-Agents in action](https://www.youtube.com/watch?v=fiQsmdwEGT8&feature=youtu.be).
 
 ## Running Example: Training NPC Behaviors
 
@@ -256,16 +257,45 @@ inspiration:
 
 ## Training Methods
 
+This section overview the various state-of-the-art machine learning algorithms that are
+part of the ML-Agents Toolkit. If you aren't studying machine and reinforcement learning
+as a subject and just want to train agents to accomplish tasks, you can treat these algorithms
+as _black boxes_. There are a few training-related parameters to adjust inside
+Unity as well as on the Python training side, but you do not need in-depth
+knowledge of the algorithm itself to successfully create and train agents.
+Step-by-step procedures for running the training process are provided in the
+[Training section](Training-ML-Agents.md).
+
+#### A Quick Note on Reward Signals
+
+In this section we introduce the concepts of _intrinsic_ and _extrinsic_ rewards, which helps
+explain some of the training methods in this section.
+
+To train an agent, you will need to provide the agent one or more reward signals which
+the agent should attempt to maximize. In reinforcement learning, the end goal for the Agent is to
+discover a behavior (a Policy) that maximizes a reward. Typically, a reward is defined by your e
+environment, and corresponds to reaching some goal. These are what we refer to as "extrinsic"
+rewards, as they are defined external of the learning algorithm.
+
+Rewards, however, can be defined outside of the environment as well, to encourage the agent to
+behave in certain ways, or to aid the learning of the true extrinsic reward. We refer to these
+rewards as "intrinsic" reward signals. The total reward that the agent will learn to maximize can
+be a mix of extrinsic and intrinsic reward signals.
+
+ML-Agents allows reward signals to be defined in a modular way, and we provide three reward
+signals that can the mixed and matched to help shape your agent's behavior. The `extrinsic` Reward
+Signal represents the rewards defined in your environment, and is enabled by default. We also
+enable you to specific up to two additional reward signals: `gail` and `curiosity` which
+are part of the GAIL algorithm and Curiosity module, respectively.
+
 ### Deep Reinforcement Learning
 
 ML-Agents provide an implementation of two reinforcement learning algorithms:
 * [Proximal Policy Optimization (PPO)](https://blog.openai.com/openai-baselines-ppo/)
 * [Soft Actor-Critic (SAC)](https://bair.berkeley.edu/blog/2018/12/14/sac/)
 
-PPO uses a neural network to approximate the ideal function that maps an agent's
-observations to the best action an agent can take in a given state. The
-ML-Agents PPO algorithm is implemented in TensorFlow and runs in a separate
-Python process (communicating with the running Unity application over a socket).
+The default algorithm is PPO. This is a method that has been shown to be more general purpose and
+stable than many other RL algorithms.
 
 In contrast with PPO, SAC is _off-policy_, which means it can learn from experiences collected
 at any time during the past. As experiences are collected, they are placed in an
@@ -273,9 +303,29 @@ experience replay buffer and randomly drawn during training. This makes SAC
 significantly more sample-efficient, often requiring 5-10 times less samples to learn
 the same task as PPO. However, SAC tends to require more model updates. SAC is a
 good choice for heavier or slower environments (about 0.1 seconds per step or more).
-
 SAC is also a "maximum entropy" algorithm, and enables exploration in an intrinsic way.
 Read more about maximum entropy RL [here](https://bair.berkeley.edu/blog/2017/10/06/soft-q-learning/).
+
+#### Curiosity for Sparse-reward Environments
+
+In environments where the agent receives rare or infrequent rewards (i.e. sparse-reward), an
+agent may never receive a reward signal on which to bootstrap its training process. This is the
+first training method that takes advantage of intrinsic rewards to help the agent explore when
+extrinsic rewards are sparse.
+
+The `curiosity` Reward Signal enables the Intrinsic Curiosity Module. This is an implementation
+of the approach described in
+[Curiosity-driven Exploration by Self-supervised Prediction(https://arxiv.org/abs/1705.05363).
+It trains two networks:
+* an inverse model, which takes the current and next observation of the agent, encodes them, and
+uses the encoding to predict the action that was taken between the observations
+* a forward model, which takes the encoded current observation and action, and predicts the
+next encoded observation.
+
+The loss of the forward model (the difference between the predicted and actual encoded observations) is used as the intrinsic reward, so the more surprised the model is, the larger the reward will be.
+
+For more information, see our dedicated [blog post on the Curiosity module](https://blogs.unity3d.com/2018/06/26/solving-sparse-reward-tasks-with-curiosity/).
+
 
 ### Imitation Learning
 
@@ -289,11 +339,10 @@ a demonstration to learn a policy. See this
 [video demo](https://youtu.be/kpb8ZkMBFYs) of imitation learning .
 
 Imitation learning can either be used alone or in conjunction with reinforcement learning.
-Especially in environments with sparse (i.e., infrequent or rare) rewards, the agent may never see
-the reward and thus not learn from it. Curiosity (which is available in the toolkit)
-helps the agent explore, but in some cases it is easier to show the agent how to
-achieve the reward. In these cases, imitation learning combined with reinforcement
-learning can dramatically reduce the time the agent takes to solve the environment.
+If used alone it can provide a mechanism for learning a specific type of behavior
+(i.e. a specific style of solving the task). If used in conjunction in reinforcement
+learning it can dramatically reduce the time the agent takes to solve the environment.
+This can be especially pronounced in sparse-reward environments.
 For instance, on the [Pyramids environment](Learning-Environment-Examples.md#pyramids),
 using 6 episodes of demonstrations can reduce training steps by more than 4 times.
 See Behavioral Cloning + GAIL + Curiosity + RL below.
@@ -320,7 +369,7 @@ reward based on how close it believes this new observation/action is to the prov
 
 At each training step, the agent tries to learn how to maximize this reward. Then, the
 discriminator is trained to better distinguish between demonstrations and agent state/actions.
-In this way, while the agent gets better and better at mimicing the demonstrations, the
+In this way, while the agent gets better and better at mimicking the demonstrations, the
 discriminator keeps getting stricter and stricter and the agent must try harder to "fool" it.
 
 This approach learns a _policy_ that produces states and actions similar to the demonstrations,
@@ -328,49 +377,66 @@ requiring fewer demonstrations than direct cloning of the actions. In addition t
 from demonstrations, the GAIL reward signal can be mixed with an extrinsic reward signal to guide
 the learning process.
 
-GAIL uses an adversarial approach to
-  reward your Agent for behaving similar to a set of demonstrations. GAIL can be
-  used with or without environment rewards, and works well when there are a limited
-  number of demonstrations.
+GAIL uses an adversarial approach to reward your Agent for behaving similar to a set of
+demonstrations. GAIL can be used with or without environment rewards, and works well when there are
+a limited number of demonstrations.
 
 #### Behavioral Cloning (BC)
 
-BC trains the Agent's policy to exactly mimic the actions
-  shown in a set of demonstrations.
-  The BC feature can be enabled on the PPO or SAC trainers. As BC cannot generalize
-  past the examples shown in the demonstrations, BC tends to work best when there exists demonstrations
-  for nearly all of the states that the agent can experience, or in conjunction with GAIL and/or an extrinsic reward.
+BC trains the Agent's policy to exactly mimic the actions shown in a set of demonstrations.
+The BC feature can be enabled on the PPO or SAC trainers. As BC cannot generalize
+past the examples shown in the demonstrations, BC tends to work best when there exists demonstrations
+for nearly all of the states that the agent can experience, or in conjunction with GAIL and/or an
+extrinsic reward.
 
 #### Recording Demonstrations
 
-Demonstrations of agent behavior can be recorded from the Unity Editor,
+Demonstrations of agent behavior can be recorded from the Unity Editor or build,
 and saved as assets. These demonstrations contain information on the
 observations, actions, and rewards for a given agent during the recording session.
 They can be managed in the Editor, as well as used for training with BC and GAIL.
 
-### Training Multi-agent Environments with Self-Play
+### Summary
 
-ML-Agents provides the functionality to train both symmetric and asymmetric adversarial games with
-[Self-Play](https://openai.com/blog/competitive-self-play/).
-A symmetric game is one in which opposing agents are equal in form, function and objective. Examples of symmetric games
-are our Tennis and Soccer example environments. In reinforcement learning, this means both agents have the same observation and
-action spaces and learn from the same reward function and so *they can share the same policy*. In asymmetric games,
-this is not the case. An example of an asymmetric games are Hide and Seek. Agents in these
-types of games do not always have the same observation or action spaces and so sharing policy networks is not
-necessarily ideal.
+To summarize, we provide 3 training methods: BC, GAIL and RL (PPO or SAC) that can be used
+independently or together:
+* BC can be used on its own or as a pre-training step before GAIL and/or RL
+* GAIL can be used with or without extrinsic rewards
+* RL can be used on its own (either PPO or SAC) or in conjunction with BC and/or GAIL.
 
-With self-play, an agent learns in adversarial games by competing against fixed, past versions of its opponent
-(which could be itself as in symmetric games) to provide a more stable, stationary learning environment. This is compared
-to competing against the current, best opponent in every episode, which is constantly changing (because it's learning).
-
-Self-play can be used with our implementations of both Proximal Policy Optimization (PPO) and Soft Actor-Critc (SAC).
-However, from the perspective of an individual agent, these scenarios appear to have non-stationary dynamics because the opponent is often changing.
-This can cause significant issues in the experience replay mechanism used by SAC. Thus, we recommend that users use PPO. For further reading on
-this issue in particular, see the paper [Stabilising Experience Replay for Deep Multi-Agent Reinforcement Learning](https://arxiv.org/pdf/1702.08887.pdf).
+Leveraging either BC or GAIL requires recording demonstrations to be provided as input to the
+training algorithms.
 
 ## Training Options
 
-### Memory-enhacened Agents
+In addition to the three training methods introduced in the previous section, the ML-Agents Toolkit
+provides additional options that can aid in training behaviors in complex environments. Each of
+the options below can be utilized with any of the training methods above.
+
+### Training in Multi-Agent Environments with Self-Play
+
+ML-Agents provides the functionality to train both symmetric and asymmetric adversarial games with
+[Self-Play](https://openai.com/blog/competitive-self-play/).
+A symmetric game is one in which opposing agents are equal in form, function and objective. Examples
+of symmetric games are our Tennis and Soccer example environments. In reinforcement learning, this
+means both agents have the same observation and action spaces and learn from the same reward
+function and so *they can share the same policy*. In asymmetric games, this is not the case. An
+example of an asymmetric games are Hide and Seek. Agents in these types of games do not always have
+the same observation or action spaces and so sharing policy networks is not necessarily ideal.
+
+With self-play, an agent learns in adversarial games by competing against fixed, past versions of
+its opponent (which could be itself as in symmetric games) to provide a more stable, stationary
+learning environment. This is compared to competing against the current, best opponent in every
+episode, which is constantly changing (because it's learning).
+
+Self-play can be used with our implementations of both Proximal Policy Optimization (PPO) and Soft
+Actor-Critic (SAC). However, from the perspective of an individual agent, these scenarios appear to
+have non-stationary dynamics because the opponent is often changing. This can cause significant
+issues in the experience replay mechanism used by SAC. Thus, we recommend that users use PPO. For
+further reading on this issue in particular, see the paper [Stabilising Experience Replay for Deep
+Multi-Agent Reinforcement Learning](https://arxiv.org/pdf/1702.08887.pdf).
+
+### Memory-enhanced Agents
 
 Have you ever entered a room to get something and immediately forgot what you
 were looking for? Don't let that happen to your agents.
@@ -428,22 +494,6 @@ The ML-Agents toolkit supports setting custom environment parameters within
 the Academy. This allows elements of the environment related to difficulty or
 complexity to be dynamically adjusted based on training progress.
 
-### Curiosity for Sparse-reward Environments
-
-The `curiosity` Reward Signal enables the Intrinsic Curiosity Module. This is an implementation
-of the approach described in "Curiosity-driven Exploration by Self-supervised Prediction"
-by Pathak, et al. It trains two networks:
-* an inverse model, which takes the current and next observation of the agent, encodes them, and
-uses the encoding to predict the action that was taken between the observations
-* a forward model, which takes the encoded current observation and action, and predicts the
-next encoded observation.
-
-The loss of the forward model (the difference between the predicted and actual encoded observations) is used as the intrinsic reward, so the more surprised the model is, the larger the reward will be.
-
-For more information, see
-* https://arxiv.org/abs/1705.05363
-* https://pathak22.github.io/noreward-rl/
-* https://blogs.unity3d.com/2018/06/26/solving-sparse-reward-tasks-with-curiosity/
 
 ### Environment Parameter Randomization for Robust Agents
 
@@ -468,32 +518,13 @@ Ball scale of 0.5          |  Ball scale of 4
 ![](images/3dball_small.png)  |  ![](images/3dball_big.png)
 
 
-## Reward Options: Instrinsic vs Extrinsic
+## Additional Features
 
-To train an agent, you will need to provide the agent one or more reward signals which
-the agent should attempt to maximize. This page highlights the available reward signals
-and the corresponding hyperparameters.
+Beyond the flexible training scenarios available, the ML-Agents Toolkit includes
+additional features which improve the flexibility and interpretability of the
+training process.
 
-In reinforcement learning, the end goal for the Agent is to discover a behavior (a Policy)
-that maximizes a reward. Typically, a reward is defined by your environment, and corresponds
-to reaching some goal. These are what we refer to as "extrinsic" rewards, as they are defined
-external of the learning algorithm.
-
-Rewards, however, can be defined outside of the environment as well, to encourage the agent to
-behave in certain ways, or to aid the learning of the true extrinsic reward. We refer to these
-rewards as "intrinsic" reward signals. The total reward that the agent will learn to maximize can
-be a mix of extrinsic and intrinsic reward signals.
-
-ML-Agents allows reward signals to be defined in a modular way, and we provide three reward
-signals that can the mixed and matched to help shape your agent's behavior. The `extrinsic` Reward
-Signal represents the rewards defined in your environment, and is enabled by default.
-The `curiosity` reward signal helps your agent explore when extrinsic rewards are sparse.
-
-## Agent Options
-
-### Complex Visual Observations
-
- Unlike other platforms, where the agent’s
+* **Complex Visual Observations** - Unlike other platforms, where the agent’s
   observation might be limited to a single vector or image, the ML-Agents
   toolkit allows multiple cameras to be used for observations per agent. This
   enables agents to learn to integrate information from multiple visual streams.
@@ -503,18 +534,7 @@ The `curiosity` reward signal helps your agent explore when extrinsic rewards ar
   learn more about adding visual observations to an agent
   [here](Learning-Environment-Design-Agents.md#multiple-visual-observations).
 
-
-### Raycast Sensors
-
-### Stacking Vector Observations
-
-## Additional Features
-
-Beyond the flexible training scenarios available, the ML-Agents Toolkit includes
-additional features which improve the flexibility and interpretability of the
-training process.
-
-* **Concurrent Unity Instances** - we enable developers to run concurrent, parallel
+* **Concurrent Unity Instances** - We enable developers to run concurrent, parallel
   instances of the Unity executable during training. For certain scenarios, this
   should speed up training.
 

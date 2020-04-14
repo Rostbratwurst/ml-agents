@@ -50,7 +50,7 @@ using the same `activate` command listed above)
 using the same `activate` command listed above)
 
 Note:
-- Verify that you are using Python 3.6 or Python 3.7. Launch a command prompt using `cmd` and
- execute `python --version` to verify the version.
-- Python3 installation may require admin privileges on Windows.
-- This guide is for Windows 10 using a 64-bit architecture only.
+* Verify that you are using Python 3.6 or Python 3.7. Launch a command prompt using `cmd` and
+execute `python --version` to verify the version.
+* Python3 installation may require admin privileges on Windows.
+* This guide is for Windows 10 using a 64-bit architecture only.

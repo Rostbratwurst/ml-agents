@@ -12,8 +12,7 @@ overview and helpful pointers.
 
 ![3D Balance Ball](images/balance.png)
 
-This guide uses the **3D Balance Ball** environment to teach the basic concepts and
-usage patterns of the ML-Agents Toolkit. 3D Balance Ball
+For this guide, we'll use the **3D Balance Ball** environment which
 contains a number of agent cubes and balls (which are all copies of each other).
 Each agent cube tries to keep its ball from falling by rotating either
 horizontally or vertically. In this environment, an agent cube is an **Agent** that
@@ -26,7 +25,7 @@ Let's get started!
 ## Installation
 
 If you haven't already, follow the [installation instructions](Installation.md).
-Afterwords, open the Unity Project that contains all the example environments:
+Afterwards, open the Unity Project that contains all the example environments:
 
 1. Launch Unity Hub
 1. On the Projects dialog, choose the **Add** option at the top of the window.
@@ -229,24 +228,20 @@ This file corresponds to your model's latest checkpoint. You can now embed this 
 model into your Agents by following the steps below, which is similar to
 the steps described [above](#running-a-pre-trained-model).
 
-1. Move your model file into
-   `Project/Assets/ML-Agents/Examples/3DBall/TFModels/`.
+1. Move your model file into `Project/Assets/ML-Agents/Examples/3DBall/TFModels/`.
 1. Open the Unity Editor, and select the **3DBall** scene as described above.
 1. Select the  **3DBall** prefab Agent object.
-1. Drag the `<behavior_name>.nn` file from the Project window of
-   the Editor to the **Model** placeholder in the **Ball3DAgent**
-   inspector window.
+1. Drag the `<behavior_name>.nn` file from the Project window of the Editor to the **Model**
+placeholder in the **Ball3DAgent** inspector window.
 1. Press the :arrow_forward: button at the top of the Editor.
 
 ## Next Steps
 
 * For more information on the ML-Agents Toolkit, in addition to helpful
-  background, check out the [ML-Agents Toolkit Overview](ML-Agents-Overview.md)
-  page.
+background, check out the [ML-Agents Toolkit Overview](ML-Agents-Overview.md) page.
 * For a "Hello World" introduction to creating your own Learning Environment,
-  check out the [Making a New Learning Environment](Learning-Environment-Create-New.md)
-  page.
+check out the [Making a New Learning Environment](Learning-Environment-Create-New.md) page.
 * For an overview on the more complex example environments that are provided in this
-  toolkit, check out the [Example Environments](Learning-Environment-Examples.md) page.
+toolkit, check out the [Example Environments](Learning-Environment-Examples.md) page.
 * For more information on the various training options available, check out the
-  [Training ML-Agents](Training-ML-Agents.md) page.
+[Training ML-Agents](Training-ML-Agents.md) page.

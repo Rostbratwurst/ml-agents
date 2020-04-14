@@ -85,7 +85,7 @@ Installing the `mlagents` Python package involves installing other Python packag
 that `mlagents` depends on. So you may run into installation issues if your machine
 has older versions of any of those dependencies already installed. Consequently, our
 supported path for installing `mlagents` is to leverage Python Virtual Environments.
-Virtual Environments provide a mechanim for isolating the dependencies for each project
+Virtual Environments provide a mechanism for isolating the dependencies for each project
 and are supported on Mac / Windows / Linux. We offer a dedicated
 [guide on Virtual Environments](Using-Virtual-Environment.md).
 
@@ -96,7 +96,7 @@ command line:
 pip3 install mlagents
 ```
 
-Note that this will install `mlagents` from PyPi, _not_ from the cloned repo.
+Note that this will install `mlagents` from PyPi, _not_ from the cloned repository.
 If you installed this correctly, you should be able to run
 `mlagents-learn --help`, after which you will see the Unity logo and the command line
 parameters you can use with `mlagents-learn`.
@@ -108,8 +108,8 @@ By installing the `mlagents` package, the dependencies listed in the
 #### Advanced: Installing for Development
 
 If you intend to make modifications to `mlagents` or `mlagents_envs`, you should install
-the packages from the cloned repo rather than from PyPi. To do this, you will need to install
- `mlagents` and `mlagents_envs` separately. From the repo's root directory, run:
+the packages from the cloned repository rather than from PyPi. To do this, you will need to install
+ `mlagents` and `mlagents_envs` separately. From the repository's root directory, run:
 
 ```sh
 pip3 install -e ./ml-agents-envs
